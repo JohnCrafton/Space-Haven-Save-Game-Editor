@@ -40,12 +40,7 @@ This save editor lets you modify important aspects of your Space Haven save file
   - Organized tabs for Ships, Crew, and Storage.
   - Easy-to-use editing with dropdowns and quick entry.
 
-- ⚠️ **Safe Save Handling**
-  - Built-in checks and confirmations before overwriting save files.
-
 - 🔧 **Built for Space Haven Alpha 20**
-  - Updated for modern save file formats and structure.
-
 ---
 
 ## 📦 Installation
