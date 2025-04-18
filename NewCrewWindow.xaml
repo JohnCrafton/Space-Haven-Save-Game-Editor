@@ -1,0 +1,281 @@
+﻿<Window x:Class="SpaceHavenEditor2.NewCrewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SpaceHavenEditor2"
+        mc:Ignorable="d"
+        Title="Create New Crew Member" Height="700" Width="800"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" ResizeMode="NoResize"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent">
+
+    <Window.Resources>
+        <Style x:Key="CardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="WhiteSmoke"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="BorderBrush" Value="#FFE0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect ShadowDepth="2" Direction="270" Color="#CCCCCC" Opacity="0.2" BlurRadius="10"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FF007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FF009AFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#FF005A9E"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="Gray"/>
+                                <Setter Property="Foreground" Value="DarkGray"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernTabControlStyle" TargetType="{x:Type TabControl}">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabControl}">
+                        <Grid KeyboardNavigation.TabNavigation="Local">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TabPanel x:Name="HeaderPanel" Grid.Row="0" Panel.ZIndex="1" Margin="0" IsItemsHost="True" KeyboardNavigation.TabIndex="1" Background="Transparent"/>
+                            <Border x:Name="ContentPanel" Grid.Row="1" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" KeyboardNavigation.DirectionalNavigation="Contained" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local">
+                                <ContentPresenter x:Name="PART_SelectedContentHost" Margin="{TemplateBinding Padding}" ContentSource="SelectedContent"/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="{x:Type TabItem}">
+                        <Setter Property="Padding" Value="12,8"/>
+                        <Setter Property="Margin" Value="0,0,2,0"/>
+                        <Setter Property="Foreground" Value="Gray"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TabItem}">
+                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="#FF007ACC"/>
+                                <Setter Property="BorderBrush" Value="#FF007ACC"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Panel.ZIndex" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#FF005A9E"/>
+                                <Setter Property="Background" Value="#10000000"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernDataGridStyle" TargetType="{x:Type DataGrid}">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="BorderBrush" Value="#FFD6D6D6" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="RowHeight" Value="30" />
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#FFF8F8F8" />
+            <Setter Property="HorizontalGridLinesBrush" Value="#FFE0E0E0" />
+            <Setter Property="VerticalGridLinesBrush" Value="#FFE0E0E0" />
+            <Setter Property="HeadersVisibility" Value="Column" />
+            <Setter Property="GridLinesVisibility" Value="Horizontal" />
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="CanUserSortColumns" Value="True"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="False"/>
+            <Setter Property="ColumnHeaderStyle">
+                <Setter.Value>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Padding" Value="8,5" />
+                        <Setter Property="Background" Value="#FFF0F0F0"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        <Setter Property="BorderBrush" Value="#FFD6D6D6"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="CellStyle">
+                <Setter.Value>
+                    <Style TargetType="{x:Type DataGridCell}">
+                        <Setter Property="Padding" Value="8,5"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#FFD6EBFF"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="RowStyle">
+                <Setter.Value>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FFE8F4FF"/>
+                            </Trigger>
+                            <Trigger Property="AlternationIndex" Value="1">
+                                <Setter Property="Background" Value="#FFF8F8F8"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#FFBEE6FD"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Border Background="WhiteSmoke" CornerRadius="8" BorderBrush="#FFABADB3" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Height="30" Background="Transparent" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Gray" FontWeight="SemiBold"/>
+            </Border>
+
+            <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}" Margin="10,0,10,10">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="New Crew Name:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="txtNewCrewName" Width="300" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}" Margin="10,0,10,10" Padding="5">
+                <TabControl Style="{StaticResource ModernTabControlStyle}">
+                    <TabItem Header="Attributes">
+                        <Border Background="White" CornerRadius="4" Padding="10" BorderThickness="1" BorderBrush="#FFE0E0E0">
+                            <StackPanel>
+                                <Button x:Name="btnSetNewAttributes" Content="Set All Attributes to 5" Width="170" HorizontalAlignment="Left" Margin="0,0,0,10" Click="btnSetNewAttributes_Click" Style="{StaticResource ModernButtonStyle}"/>
+                                <DataGrid x:Name="dgvNewAttributes" Style="{StaticResource ModernDataGridStyle}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="Auto" />
+                                        <DataGridTextColumn Header="Attribute Name" Binding="{Binding Name}" IsReadOnly="True" Width="*" />
+                                        <DataGridTextColumn Header="Value" Binding="{Binding Value}" IsReadOnly="False" Width="Auto" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Border>
+                    </TabItem>
+                    <TabItem Header="Skills">
+                        <Border Background="White" CornerRadius="4" Padding="10" BorderThickness="1" BorderBrush="#FFE0E0E0">
+                            <StackPanel>
+                                <Button x:Name="btnSetNewSkills" Content="Set All Skills to 8" Width="150" HorizontalAlignment="Left" Margin="0,0,0,10" Click="btnSetNewSkills_Click" Style="{StaticResource ModernButtonStyle}"/>
+                                <DataGrid x:Name="dgvNewSkills"
+                                          Style="{StaticResource ModernDataGridStyle}"
+                                          MaxHeight="400"
+                                          ScrollViewer.CanContentScroll="True"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="Auto" />
+                                        <DataGridTextColumn Header="Skill Name" Binding="{Binding Name}" IsReadOnly="True" Width="*" />
+                                        <DataGridTextColumn Header="Level" Binding="{Binding Value}" IsReadOnly="False" Width="Auto" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Border>
+                    </TabItem>
+                    <TabItem Header="Traits">
+                        <Border Background="White" CornerRadius="4" Padding="10" BorderThickness="1" BorderBrush="#FFE0E0E0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                    <TextBlock Text="Available Traits:" Margin="0,0,0,5"/>
+                                    <ComboBox x:Name="cmbAvailableTraits" DisplayMemberPath="Value" SelectedValuePath="Key" Height="25"/>
+                                    <Button x:Name="btnAddNewTrait" Content="Add =>" Margin="0,10,0,0" Width="100" HorizontalAlignment="Center" Click="btnAddNewTrait_Click" Style="{StaticResource ModernButtonStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                    <TextBlock Text="Selected Traits:" Margin="0,0,0,5"/>
+                                    <ListBox x:Name="lstNewTraits" MinHeight="200" MaxHeight="300" DisplayMemberPath="Name"/>
+                                    <Button x:Name="btnRemoveNewTrait" Content="Remove" Margin="0,10,0,0" Width="100" HorizontalAlignment="Center" Click="btnRemoveNewTrait_Click" Style="{StaticResource ModernButtonStyle}" Background="IndianRed"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </TabItem>
+                </TabControl>
+            </Border>
+
+            <Border Grid.Row="3" Style="{StaticResource CardBorderStyle}" Margin="10,0,10,10" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="Note: Double-click 'Value'/'Level' in Attributes/Skills grids to edit."
+                               FontStyle="Italic"
+                               Foreground="Gray"
+                               FontSize="11"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap" Margin="0,0,10,0"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="btnCreateCrew" Content="Create Crew" Width="120" IsDefault="True" Click="btnCreateCrew_Click" Style="{StaticResource ModernButtonStyle}"/>
+                        <Button Content="Cancel" Width="100" IsCancel="True" Style="{StaticResource ModernButtonStyle}" Background="Gray"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
