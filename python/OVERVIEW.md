@@ -37,7 +37,7 @@ Some advanced features from the VB.NET version are being ported:
 
 ## 🚀 How to Use on Steam Deck
 
-### Simple Method:
+### Simple Method (with uv):
 1. Download/copy this repository to your Steam Deck
 2. Switch to Desktop Mode
 3. Open Konsole (terminal)
@@ -50,7 +50,13 @@ Some advanced features from the VB.NET version are being ported:
    ./run_editor.sh
    ```
 
-The launcher automatically handles dependencies!
+The launcher automatically handles dependencies using `uv` (fast Python package manager)!
+
+**Why uv?**
+- ⚡ 10-100x faster than pip
+- 🎯 No system Python conflicts
+- 🔒 Isolated environments
+- 💪 Perfect for Steam Deck's architecture
 
 ## 💻 Technical Details
 
@@ -58,6 +64,7 @@ The launcher automatically handles dependencies!
 - **Language**: Python 3.8+
 - **GUI Framework**: PyQt6 (native Qt widgets, touch-friendly)
 - **XML Parsing**: Built-in ElementTree
+- **Package Manager**: uv (ultra-fast Python package installer)
 - **Platform**: Cross-platform (no Wine needed!)
 
 ### Why PyQt6?
@@ -65,6 +72,13 @@ The launcher automatically handles dependencies!
 - Touch-friendly on Steam Deck
 - Professional appearance
 - Well-maintained and stable
+
+### Why uv?
+- 10-100x faster than pip
+- Written in Rust for speed
+- Isolated virtual environments
+- No system Python conflicts
+- Perfect for Steam Deck's read-only filesystem
 
 ### Architecture
 ```

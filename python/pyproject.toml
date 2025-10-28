@@ -1,0 +1,43 @@
+[project]
+name = "space-haven-editor"
+version = "2.0.0"
+description = "Cross-platform save editor for Space Haven"
+readme = "README_PYTHON.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Original by Moragar", email = ""},
+    {name = "Python port by contributors", email = ""}
+]
+keywords = ["space-haven", "save-editor", "game", "steam-deck"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Games/Entertainment",
+]
+
+dependencies = [
+    "PyQt6>=6.4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/JohnCrafton/Space-Haven-Save-Game-Editor"
+Repository = "https://github.com/JohnCrafton/Space-Haven-Save-Game-Editor"
+Issues = "https://github.com/JohnCrafton/Space-Haven-Save-Game-Editor/issues"
+
+[project.scripts]
+space-haven-editor = "space_haven_editor:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = []

@@ -22,14 +22,19 @@
 ### First Time Setup
 
 The launcher script will automatically:
-- Check if Python 3 is installed
-- Install PyQt6 if needed
+- Install `uv` if needed (fast Python package manager)
+- Install PyQt6 automatically
 - Launch the editor
 
-If you get errors, install dependencies manually:
-```bash
-pip install --user PyQt6
-```
+**No manual dependency installation needed!** `uv` handles everything.
+
+### Why uv?
+
+`uv` is much faster and more reliable than pip on Steam Deck:
+- ⚡ 10-100x faster than pip
+- 🎯 No conflicts with system Python
+- 🔒 Isolated environments automatically
+- 💪 Works great on SteamOS
 
 ## 📁 Where are my save files?
 

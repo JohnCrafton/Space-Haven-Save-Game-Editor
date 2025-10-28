@@ -1,6 +1,6 @@
 #!/bin/bash
 # Space Haven Save Editor Launcher
-# This script launches the Python version of the Space Haven Save Editor
+# This script launches the Python version of the Space Haven Save Editor using uv
 
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -8,28 +8,33 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Change to the script directory
 cd "$SCRIPT_DIR"
 
-# Check if Python 3 is available
-if ! command -v python3 &> /dev/null; then
-    echo "Error: Python 3 is not installed."
-    echo "Please install Python 3.8 or higher."
-    exit 1
-fi
-
-# Check if PyQt6 is installed
-if ! python3 -c "import PyQt6" 2>/dev/null; then
-    echo "PyQt6 is not installed. Installing dependencies..."
-    pip install --user -r requirements.txt
+# Check if uv is installed
+if ! command -v uv &> /dev/null; then
+    echo "uv is not installed. Installing uv..."
+    echo "This will download and install uv (the fast Python package manager)"
     
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to install dependencies."
-        echo "Please run: pip install --user PyQt6"
+    # Install uv using the standalone installer
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    
+    # Add uv to PATH for this session
+    export PATH="$HOME/.cargo/bin:$PATH"
+    
+    # Check if installation was successful
+    if ! command -v uv &> /dev/null; then
+        echo "Error: Failed to install uv."
+        echo "Please install manually: curl -LsSf https://astral.sh/uv/install.sh | sh"
         exit 1
     fi
+    
+    echo "✓ uv installed successfully!"
 fi
 
-# Launch the editor
+# Launch the editor using uv run
+# uv will automatically create a virtual environment and install dependencies
 echo "Starting Space Haven Save Editor..."
-python3 space_haven_editor.py
+echo "(uv will handle dependencies automatically)"
+
+uv run --with PyQt6 space_haven_editor.py
 
 # Exit with the same exit code as the Python script
 exit $?

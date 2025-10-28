@@ -45,7 +45,7 @@ All the features of the original editor, now running on Linux/Steam Deck:
 
 ## 📦 Installation
 
-### On Steam Deck (Desktop Mode)
+### On Steam Deck (Desktop Mode) - Recommended!
 
 1. **Switch to Desktop Mode**
    - Hold the power button and select "Switch to Desktop"
@@ -53,17 +53,7 @@ All the features of the original editor, now running on Linux/Steam Deck:
 2. **Open Konsole (Terminal)**
    - Find it in the application menu
 
-3. **Install Python and dependencies** (if not already installed):
-   ```bash
-   # Update package manager
-   sudo steamos-readonly disable
-   sudo pacman -Sy
-   
-   # Install Python and pip if needed
-   sudo pacman -S python python-pip
-   ```
-
-4. **Download the editor**:
+3. **Download the editor**:
    ```bash
    cd ~/Downloads
    git clone https://github.com/JohnCrafton/Space-Haven-Save-Game-Editor.git
@@ -72,11 +62,30 @@ All the features of the original editor, now running on Linux/Steam Deck:
    
    OR download the ZIP from GitHub and extract it
 
-5. **Install the Python editor**:
+4. **Make the launcher executable**:
    ```bash
-   cd ~/Downloads/Space-Haven-Save-Game-Editor/python
-   pip install --user -r requirements.txt
+   chmod +x run_editor.sh
    ```
+
+5. **Run the editor**:
+   ```bash
+   ./run_editor.sh
+   ```
+
+**That's it!** The script will automatically:
+- Install `uv` (fast Python package manager) if needed
+- Install PyQt6 automatically using `uv`
+- Launch the editor
+
+**No manual Python/pip setup required!** The `uv` tool handles everything in an isolated environment.
+
+### Why uv?
+
+We use `uv` instead of pip because it's:
+- ⚡ **10-100x faster** than pip
+- 🎯 **No conflicts** with Steam Deck's system Python
+- 🔒 **Isolated** - doesn't mess with system packages
+- 💪 **Reliable** on SteamOS's read-only filesystem
 
 6. **Make the launcher executable**:
    ```bash
@@ -89,6 +98,22 @@ All the features of the original editor, now running on Linux/Steam Deck:
    ```
 
 ### On Linux (Desktop)
+
+**Option 1: Using uv (Recommended - Fast & Easy)**
+
+```bash
+# Download the editor
+git clone https://github.com/JohnCrafton/Space-Haven-Save-Game-Editor.git
+cd Space-Haven-Save-Game-Editor/python
+
+# Make launcher executable and run
+chmod +x run_editor.sh
+./run_editor.sh
+```
+
+The script auto-installs `uv` and dependencies. No manual setup needed!
+
+**Option 2: Traditional Python/pip method**
 
 1. **Install Python 3.8 or higher**:
    ```bash
@@ -238,35 +263,75 @@ savegames/
 
 ## 🐛 Troubleshooting
 
-### "No module named 'PyQt6'"
-```bash
-pip install --user PyQt6
-```
+### Using uv (Recommended Method)
 
-### "Permission denied" when running run_editor.sh
+If you're using the `run_editor.sh` script with `uv`, most issues are automatically handled!
+
+**Script won't run:**
 ```bash
 chmod +x run_editor.sh
 ```
 
-### Can't find save files
+**uv installation fails:**
+```bash
+# Manually install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Add to PATH
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# Try running again
+./run_editor.sh
+```
+
+**Editor won't start:**
+```bash
+# Check if uv is in PATH
+which uv
+
+# If not found, add it:
+export PATH="$HOME/.cargo/bin:$PATH"
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
+```
+
+### Traditional pip Method
+
+**"No module named 'PyQt6'":**
+```bash
+pip install --user PyQt6
+# OR with uv:
+uv pip install PyQt6
+```
+
+**"Permission denied" when running run_editor.sh:**
+```bash
+chmod +x run_editor.sh
+```
+
+**Can't find save files:**
 Check both possible Steam directories:
 ```bash
 ls ~/.steam/steam/steamapps/common/SpaceHaven/savegames/
 ls ~/.local/share/Steam/steamapps/common/SpaceHaven/savegames/
 ```
 
-### Editor won't start in Desktop Mode
-Make sure you have Python installed:
+**Editor won't start in Desktop Mode:**
 ```bash
+# With uv (recommended):
+./run_editor.sh
+
+# Or check Python version:
 python3 --version
+# Should show Python 3.8 or higher
 ```
 
-Should show Python 3.8 or higher.
-
-### Changes don't appear in game
+**Changes don't appear in game:**
 - Make sure you clicked "Update Global Settings" before saving
 - Verify the save file was actually modified (check timestamp)
 - Make sure Space Haven isn't running when you save
+
+**Steam Deck read-only filesystem issues:**
+This is why we use `uv`! It handles everything in user space without needing `sudo` or modifying system files.
 
 ---
 
