@@ -4,6 +4,26 @@ Take full control of your Space Haven adventure!
 
 This save editor lets you modify important aspects of your Space Haven save files, including credits, prestige points, ship sizes, crew members, and storage items. Built fresh from scratch to support Space Haven Alpha 20 — no outdated tools here.
 
+## 🎮 NEW: Python Version for Steam Deck!
+
+**Now available in Python!** Run the editor natively on your Steam Deck or any Linux system!
+
+👉 **[Go to Python Version →](python/)**
+
+- ✅ Runs natively on Steam Deck (SteamOS/Linux)
+- ✅ No Wine or compatibility layers needed
+- ✅ Touch-friendly interface
+- ✅ Easy installation with automated script
+- ✅ Cross-platform (Linux, macOS, Windows)
+
+**Quick Start for Steam Deck:**
+```bash
+cd python/
+./run_editor.sh
+```
+
+See [python/QUICKSTART.md](python/QUICKSTART.md) for full instructions!
+
 ---
 
 ## 📋 Features
