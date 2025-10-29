@@ -31,3 +31,8 @@ Thumbs.db
 
 # Application specific
 *.backup
+
+# Test files
+python/test_save.xml
+python/test_*.py
+python/unknown_ids_report_*.md

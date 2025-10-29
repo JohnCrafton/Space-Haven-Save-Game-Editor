@@ -42,6 +42,13 @@ All the features of the original editor, now running on Linux/Steam Deck:
   - Helps diagnose issues when tabs appear empty
   - See [LOGGING.md](LOGGING.md) for details
 
+- 🔬 **Save File Scanner (NEW!)**
+  - Scan save files for unknown item IDs
+  - Detect new content from game updates
+  - Generate bug reports for developers
+  - Helps maintain compatibility during Early Access
+  - See [SCANNER.md](SCANNER.md) for details
+
 - 🎮 **Steam Deck Optimized**
   - Touch-friendly interface
   - Runs natively on SteamOS
@@ -205,6 +212,12 @@ The save file is named **`game`** (no extension).
 4. **Save your changes**:
    - Click **File → Save** (or press Ctrl+S)
    - Launch Space Haven and load your save!
+
+5. **Scan for unknown IDs** (Optional):
+   - Click **Tools → Scan for Unknown IDs** (or press Ctrl+Shift+S)
+   - Review the scan results
+   - Export a bug report if unknown IDs are found
+   - See [SCANNER.md](SCANNER.md) for detailed instructions
 
 ### Tips for Steam Deck
 

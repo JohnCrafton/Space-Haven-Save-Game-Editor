@@ -15,6 +15,7 @@ This save editor lets you modify important aspects of your Space Haven save file
 - ✅ Touch-friendly interface
 - ✅ Easy installation with automated script
 - ✅ Cross-platform (Linux, macOS, Windows)
+- ✅ Save file scanner to detect unknown IDs (NEW!)
 
 **Quick Start for Steam Deck:**
 ```bash
