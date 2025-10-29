@@ -19,7 +19,7 @@ A comprehensive scanning system that:
 ### Files Added
 ```
 python/
-├── reference_data.py          # Reference ID collections (469 known IDs)
+├── reference_data.py          # Reference ID collections (355 known IDs)
 ├── save_scanner.py            # Scanner engine and bug report generator
 ├── SCANNER.md                 # User documentation
 ├── DEVELOPER_GUIDE.md         # Developer documentation
@@ -43,7 +43,7 @@ root/
 ## Features Implemented
 
 ### 1. Reference Data System
-- **469 known IDs** across 7 categories:
+- **355 known IDs** across 7 categories:
   - 4 Attributes (Bravery, Zest, Intelligence, Perception)
   - 14 Skills (Piloting, Mining, Botany, Medical, etc.)
   - 24 Traits (Hero, Smart, Fast Learner, etc.)
@@ -103,21 +103,21 @@ if result.unknown_ids_count > 0:
 - ScanResult functionality
 - Scanner initialization
 - Bug report generation
-- **Result**: All tests passing
+- **Result**: All tests passing ✓
 
 ### Integration Tests
 - Full scan workflow with sample XML save file
 - Detection of 5 different unknown ID types
 - Bug report generation and validation
-- **Result**: All tests passing
+- **Result**: All tests passing ✓
 
 ### Test Coverage
-- ✅ Reference data access
-- ✅ Unknown ID detection
-- ✅ Multiple occurrences tracking
-- ✅ Bug report formatting
-- ✅ File I/O operations
-- ✅ UI integration (manual testing required with PyQt6)
+- [x] Reference data access
+- [x] Unknown ID detection
+- [x] Multiple occurrences tracking
+- [x] Bug report formatting
+- [x] File I/O operations
+- [x] UI integration (manual testing required with PyQt6)
 
 ## Usage Workflows
 
@@ -162,12 +162,12 @@ These were considered but left for future work:
 - **Platform**: Cross-platform (Linux, macOS, Windows, Steam Deck)
 
 ## Code Quality
-- ✅ PEP 8 compliant
-- ✅ Type hints throughout
-- ✅ Comprehensive docstrings
-- ✅ Error handling
-- ✅ Logging for debugging
-- ✅ Test coverage
+- [x] PEP 8 compliant
+- [x] Type hints throughout
+- [x] Comprehensive docstrings
+- [x] Error handling
+- [x] Logging for debugging
+- [x] Test coverage
 
 ## Key Design Decisions
 
@@ -218,10 +218,10 @@ The Save File Scanner feature is complete, tested, and ready for use. It provide
 The implementation follows best practices, includes comprehensive documentation, and is designed for easy maintenance and extension.
 
 ## Ready for User Testing
-✅ All functionality implemented
-✅ All tests passing
-✅ Documentation complete
-✅ Integration tested
-✅ Ready for real-world save file testing
+- [x] All functionality implemented
+- [x] All tests passing
+- [x] Documentation complete
+- [x] Integration tested
+- [x] Ready for real-world save file testing
 
 The feature awaits user-uploaded save files to validate real-world detection capabilities.
