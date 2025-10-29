@@ -38,6 +38,7 @@ All the features of the original editor, now running on Linux/Steam Deck:
 
 - 🔍 **Verbose Logging**
   - Detailed logs written to dated files for debugging
+  - Logs XML parsing, character/ship loading, and errors
   - Helps diagnose issues when tabs appear empty
   - See [LOGGING.md](LOGGING.md) for details
 

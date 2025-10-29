@@ -116,9 +116,15 @@ If storage or character tabs are empty, the log will show:
 ## Privacy Note
 
 Log files may contain:
-- File paths on your system
+- File paths on your system (including username in home directory path)
 - Ship names from your save
 - Character names from your save
 - Save file structure details
+- Potentially other game data depending on save file contents
 
-Keep this in mind when sharing logs publicly.
+**Before sharing logs publicly or with support:**
+1. Review the log file contents
+2. Redact or replace any personal information (usernames, custom names)
+3. Consider sharing only relevant excerpts rather than the entire log
+
+The logs are designed for debugging purposes and don't intentionally capture sensitive data, but it's always good practice to review before sharing.
