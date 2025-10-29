@@ -21,12 +21,14 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTabWidget, QLabel, QLineEdit, QPushButton, QComboBox, QCheckBox,
     QTableWidget, QTableWidgetItem, QFileDialog, QMessageBox, QGroupBox,
-    QSpinBox, QHeaderView, QMenuBar, QMenu
+    QSpinBox, QHeaderView, QMenuBar, QMenu, QDialog, QTextEdit, QDialogButtonBox
 )
 from PyQt6.QtCore import Qt, QSettings
 from PyQt6.QtGui import QAction
 
 from models import Character, Ship, DataProp, RelationshipInfo, StorageContainer, StorageItem
+from save_scanner import SaveFileScanner, ScanResult
+from reference_data import ReferenceData
 
 
 def setup_logging():
@@ -101,6 +103,8 @@ class SpaceHavenEditor(QMainWindow):
         self.characters: List[Character] = []
         self.ships: List[Ship] = []
         self.id_collection = IdCollection()
+        self.scanner = SaveFileScanner()
+        self.last_scan_result: Optional[ScanResult] = None
         
         # Settings
         self.settings = QSettings("SpaceHavenEditor", "SaveEditor")
@@ -180,6 +184,22 @@ class SpaceHavenEditor(QMainWindow):
         exit_action.setShortcut("Ctrl+Q")
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
+        
+        # Tools menu
+        tools_menu = menubar.addMenu("&Tools")
+        
+        scan_action = QAction("&Scan for Unknown IDs...", self)
+        scan_action.setShortcut("Ctrl+Shift+S")
+        scan_action.triggered.connect(self.scan_save_file)
+        tools_menu.addAction(scan_action)
+        
+        view_last_scan_action = QAction("&View Last Scan Results", self)
+        view_last_scan_action.triggered.connect(self.view_last_scan_results)
+        tools_menu.addAction(view_last_scan_action)
+        
+        export_report_action = QAction("&Export Bug Report...", self)
+        export_report_action.triggered.connect(self.export_bug_report)
+        tools_menu.addAction(export_report_action)
         
         # Help menu
         help_menu = menubar.addMenu("&Help")
@@ -928,6 +948,165 @@ class SpaceHavenEditor(QMainWindow):
             "<p>Supports Space Haven Alpha 20</p>"
             "<p>License: MIT</p>"
         )
+    
+    def scan_save_file(self):
+        """Scan the current save file for unknown IDs"""
+        if not self.current_file_path:
+            QMessageBox.warning(
+                self,
+                "No File Loaded",
+                "Please open a save file first before scanning."
+            )
+            return
+        
+        try:
+            # Show progress message
+            progress_msg = QMessageBox(self)
+            progress_msg.setWindowTitle("Scanning...")
+            progress_msg.setText("Scanning save file for unknown IDs...")
+            progress_msg.setStandardButtons(QMessageBox.StandardButton.NoButton)
+            progress_msg.show()
+            QApplication.processEvents()
+            
+            # Perform scan
+            self.logger.info(f"Starting scan of {self.current_file_path}")
+            self.last_scan_result = self.scanner.scan_file(self.current_file_path)
+            
+            # Close progress message
+            progress_msg.close()
+            
+            # Show results
+            self.show_scan_results(self.last_scan_result)
+            
+        except Exception as e:
+            self.logger.error(f"Error during scan: {str(e)}", exc_info=True)
+            QMessageBox.critical(
+                self,
+                "Scan Error",
+                f"An error occurred while scanning:\n{str(e)}"
+            )
+    
+    def show_scan_results(self, result: ScanResult):
+        """Display scan results in a dialog"""
+        if not result:
+            QMessageBox.information(
+                self,
+                "No Scan Results",
+                "No scan has been performed yet."
+            )
+            return
+        
+        # Create results dialog
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Scan Results")
+        dialog.setMinimumSize(800, 600)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Results text
+        results_text = QTextEdit()
+        results_text.setReadOnly(True)
+        results_text.setPlainText(result.get_summary())
+        layout.addWidget(results_text)
+        
+        # Buttons
+        button_box = QDialogButtonBox()
+        
+        if result.unknown_ids_count > 0:
+            export_btn = button_box.addButton("Export Report", QDialogButtonBox.ButtonRole.ActionRole)
+            export_btn.clicked.connect(lambda: self.export_bug_report())
+        
+        close_btn = button_box.addButton(QDialogButtonBox.StandardButton.Close)
+        close_btn.clicked.connect(dialog.close)
+        
+        layout.addWidget(button_box)
+        
+        dialog.exec()
+    
+    def view_last_scan_results(self):
+        """View the results of the last scan"""
+        if not self.last_scan_result:
+            QMessageBox.information(
+                self,
+                "No Scan Results",
+                "No scan has been performed yet.\n\nUse Tools -> Scan for Unknown IDs to scan a save file."
+            )
+            return
+        
+        self.show_scan_results(self.last_scan_result)
+    
+    def export_bug_report(self):
+        """Export a bug report for unknown IDs"""
+        if not self.last_scan_result:
+            QMessageBox.warning(
+                self,
+                "No Scan Results",
+                "Please scan a save file first before exporting a bug report."
+            )
+            return
+        
+        if self.last_scan_result.unknown_ids_count == 0:
+            QMessageBox.information(
+                self,
+                "No Unknown IDs",
+                "No unknown IDs were found in the last scan.\nNo bug report is needed."
+            )
+            return
+        
+        # Ask user where to save the report
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Bug Report",
+            f"unknown_ids_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
+            "Markdown Files (*.md);;Text Files (*.txt);;All Files (*.*)"
+        )
+        
+        if not file_path:
+            return
+        
+        try:
+            report_path = self.scanner.save_report_to_file(self.last_scan_result, file_path)
+            
+            # Ask if user wants to open the report
+            reply = QMessageBox.question(
+                self,
+                "Report Saved",
+                f"Bug report saved to:\n{report_path}\n\nWould you like to open it now?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            
+            if reply == QMessageBox.StandardButton.Yes:
+                import subprocess
+                import platform
+                
+                system = platform.system()
+                if system == "Darwin":  # macOS
+                    subprocess.run(["open", report_path])
+                elif system == "Windows":
+                    subprocess.run(["notepad.exe", report_path])
+                else:  # Linux
+                    subprocess.run(["xdg-open", report_path])
+            
+            # Show info about submitting to GitHub
+            QMessageBox.information(
+                self,
+                "Submit to GitHub",
+                "To submit this bug report to the developers:\n\n"
+                "1. Go to https://github.com/JohnCrafton/Space-Haven-Save-Game-Editor/issues\n"
+                "2. Click 'New Issue'\n"
+                "3. Copy and paste the contents of the bug report\n"
+                "4. Add any additional context or information\n"
+                "5. Submit the issue\n\n"
+                "The developers will investigate the unknown IDs."
+            )
+            
+        except Exception as e:
+            self.logger.error(f"Error exporting bug report: {str(e)}", exc_info=True)
+            QMessageBox.critical(
+                self,
+                "Export Error",
+                f"Failed to export bug report:\n{str(e)}"
+            )
         
     def closeEvent(self, event):
         """Handle application close"""
