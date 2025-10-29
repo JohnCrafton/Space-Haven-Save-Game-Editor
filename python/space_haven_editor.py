@@ -10,6 +10,7 @@ Python port for cross-platform compatibility
 import sys
 import os
 import shutil
+import logging
 from pathlib import Path
 from datetime import datetime
 from typing import List, Optional
@@ -26,6 +27,37 @@ from PyQt6.QtCore import Qt, QSettings
 from PyQt6.QtGui import QAction
 
 from models import Character, Ship, DataProp, RelationshipInfo, StorageContainer, StorageItem
+
+
+def setup_logging():
+    """Configure logging to write to a dated log file adjacent to the script"""
+    # Get the directory where the script is located
+    script_dir = Path(__file__).parent.absolute()
+    
+    # Create log filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_filename = f"space_haven_editor_{timestamp}.log"
+    log_path = script_dir / log_filename
+    
+    # Configure logging
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s',
+        handlers=[
+            logging.FileHandler(log_path, mode='w', encoding='utf-8'),
+            logging.StreamHandler()  # Also log to console
+        ]
+    )
+    
+    logger = logging.getLogger(__name__)
+    logger.info("="*80)
+    logger.info("Space Haven Save Editor - Logging Started")
+    logger.info(f"Log file: {log_path}")
+    logger.info(f"Python version: {sys.version}")
+    logger.info(f"Script directory: {script_dir}")
+    logger.info("="*80)
+    
+    return logger
 
 
 class IdCollection:
@@ -56,6 +88,9 @@ class SpaceHavenEditor(QMainWindow):
     
     def __init__(self):
         super().__init__()
+        self.logger = logging.getLogger(__name__)
+        self.logger.info("Initializing SpaceHavenEditor main window")
+        
         self.setWindowTitle("Space Haven Save Editor - Python Edition")
         self.setMinimumSize(1000, 700)
         
@@ -70,9 +105,11 @@ class SpaceHavenEditor(QMainWindow):
         # Settings
         self.settings = QSettings("SpaceHavenEditor", "SaveEditor")
         self.backup_enabled = self.settings.value("backup_on_open", True, type=bool)
+        self.logger.info(f"Backup on open: {self.backup_enabled}")
         
         # Setup UI
         self.init_ui()
+        self.logger.info("SpaceHavenEditor initialization complete")
         
     def init_ui(self):
         """Initialize the user interface"""
@@ -280,6 +317,8 @@ class SpaceHavenEditor(QMainWindow):
         
     def open_file(self):
         """Open a save file"""
+        self.logger.info("Opening file dialog")
+        
         # Determine initial directory
         home = str(Path.home())
         initial_dir = home
@@ -294,6 +333,7 @@ class SpaceHavenEditor(QMainWindow):
         for path in possible_paths:
             if path.exists():
                 initial_dir = str(path)
+                self.logger.info(f"Found Steam save directory: {initial_dir}")
                 break
         
         # Open file dialog
@@ -305,22 +345,30 @@ class SpaceHavenEditor(QMainWindow):
         )
         
         if not file_path:
+            self.logger.info("File dialog cancelled by user")
             return
+        
+        self.logger.info(f"Selected file: {file_path}")
             
         # Backup if enabled
         if self.backup_enabled:
+            self.logger.info("Creating backup...")
             self.create_backup(file_path)
         
         # Reset application state
+        self.logger.info("Resetting application state")
         self.reset_application_state()
         
         # Load the file
         try:
             self.current_file_path = file_path
+            self.logger.info(f"Loading save file from: {file_path}")
             self.load_save_file(file_path)
             self.setWindowTitle(f"Space Haven Save Editor - {Path(file_path).name}")
+            self.logger.info("Save file loaded successfully")
             QMessageBox.information(self, "Success", "Save file loaded successfully!")
         except Exception as e:
+            self.logger.error(f"Failed to load save file: {str(e)}", exc_info=True)
             QMessageBox.critical(self, "Error", f"Failed to load save file:\n{str(e)}")
             self.reset_application_state()
             
@@ -335,9 +383,12 @@ class SpaceHavenEditor(QMainWindow):
             backup_name = f"{parent_dir.name}_{source_dir.name}_backup_{timestamp}"
             backup_path = savegames_dir / backup_name
             
+            self.logger.info(f"Creating backup from {source_dir} to {backup_path}")
             shutil.copytree(source_dir, backup_path)
+            self.logger.info("Backup created successfully")
             
         except Exception as e:
+            self.logger.error(f"Backup failed: {str(e)}", exc_info=True)
             QMessageBox.warning(
                 self,
                 "Backup Failed",
@@ -346,121 +397,266 @@ class SpaceHavenEditor(QMainWindow):
             
     def load_save_file(self, file_path: str):
         """Load and parse the save file"""
+        self.logger.info("="*60)
+        self.logger.info("Starting to load save file")
+        self.logger.info(f"File path: {file_path}")
+        self.logger.info(f"File size: {Path(file_path).stat().st_size} bytes")
+        
         # Parse XML
-        self.xml_tree = ET.parse(file_path)
-        self.xml_root = self.xml_tree.getroot()
+        self.logger.info("Parsing XML...")
+        try:
+            self.xml_tree = ET.parse(file_path)
+            self.xml_root = self.xml_tree.getroot()
+            self.logger.info(f"XML root tag: {self.xml_root.tag}")
+            self.logger.info(f"XML root attributes: {self.xml_root.attrib}")
+        except Exception as e:
+            self.logger.error(f"XML parsing failed: {str(e)}", exc_info=True)
+            raise
         
         if self.xml_root.tag != "game":
-            raise ValueError("Invalid save file: missing <game> root element")
+            error_msg = f"Invalid save file: root element is '{self.xml_root.tag}', expected 'game'"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+        
+        # Log XML structure overview
+        self.logger.info("XML structure overview:")
+        for child in self.xml_root:
+            self.logger.info(f"  - {child.tag} (attributes: {list(child.attrib.keys())})")
         
         # Load different sections
+        self.logger.info("Loading global settings...")
         self.load_global_settings()
+        
+        self.logger.info("Loading ships...")
         self.load_ships()
+        
+        self.logger.info("Loading characters...")
         self.load_characters()
         
         # Populate UI
         if self.ships:
+            self.logger.info(f"Populating ship combo with {len(self.ships)} ships")
             self.ship_combo.clear()
             for ship in self.ships:
                 self.ship_combo.addItem(str(ship), ship)
+                self.logger.debug(f"  Added ship: {ship}")
             self.ship_combo.setCurrentIndex(0)
+        else:
+            self.logger.warning("No ships found in save file!")
+        
+        self.logger.info("="*60)
             
     def load_global_settings(self):
         """Load global settings from XML"""
         if self.xml_root is None:
+            self.logger.warning("load_global_settings: xml_root is None")
             return
+        
+        self.logger.info("Loading global settings...")
             
         # Load credits
         bank_elem = self.xml_root.find("playerBank")
         if bank_elem is not None:
             credits = bank_elem.get("ca", "0")
             self.credits_input.setText(credits)
+            self.logger.info(f"  Credits: {credits}")
+            self.logger.debug(f"  playerBank attributes: {bank_elem.attrib}")
+        else:
+            self.logger.warning("  playerBank element not found")
         
         # Load prestige points
         try:
             quest_lines1 = self.xml_root.find("questLines")
             if quest_lines1 is not None:
+                self.logger.debug(f"  Found questLines (outer)")
                 quest_lines2 = quest_lines1.find("questLines")
                 if quest_lines2 is not None:
+                    self.logger.debug(f"  Found questLines (inner)")
+                    exodus_fleet_found = False
                     for elem in quest_lines2.findall("l"):
-                        if elem.get("type") == "ExodusFleet":
+                        elem_type = elem.get("type")
+                        self.logger.debug(f"    Quest line type: {elem_type}")
+                        if elem_type == "ExodusFleet":
                             prestige = elem.get("playerPrestigePoints", "0")
                             self.prestige_input.setText(prestige)
+                            self.logger.info(f"  Prestige Points: {prestige}")
+                            exodus_fleet_found = True
                             break
-        except Exception:
+                    if not exodus_fleet_found:
+                        self.logger.warning("  ExodusFleet quest line not found")
+                else:
+                    self.logger.warning("  Inner questLines element not found")
+            else:
+                self.logger.warning("  Outer questLines element not found")
+        except Exception as e:
+            self.logger.error(f"  Error loading prestige points: {str(e)}", exc_info=True)
             self.prestige_input.setText("0")
         
         # Load sandbox mode
         settings_elem = self.xml_root.find("settings")
         if settings_elem is not None:
+            self.logger.debug("  Found settings element")
             diff_elem = settings_elem.find("diff")
             if diff_elem is not None:
                 sandbox = diff_elem.get("sandbox", "false").lower() == "true"
                 self.sandbox_check.setChecked(sandbox)
+                self.logger.info(f"  Sandbox Mode: {sandbox}")
+                self.logger.debug(f"  diff attributes: {diff_elem.attrib}")
+            else:
+                self.logger.warning("  diff element not found")
+        else:
+            self.logger.warning("  settings element not found")
                 
     def load_ships(self):
         """Load ships from XML"""
         self.ships.clear()
         
         if self.xml_root is None:
+            self.logger.warning("load_ships: xml_root is None")
             return
+        
+        self.logger.info("Searching for ship elements...")
+        ship_elements = self.xml_root.findall(".//ship")
+        self.logger.info(f"Found {len(ship_elements)} ship elements")
+        
+        for idx, ship_elem in enumerate(ship_elements):
+            self.logger.info(f"Processing ship {idx + 1}/{len(ship_elements)}")
+            self.logger.debug(f"  Ship element attributes: {ship_elem.attrib}")
             
-        for ship_elem in self.xml_root.findall(".//ship"):
             ship = Ship()
             ship.sid = int(ship_elem.get("sid", "0"))
             ship.sname = ship_elem.get("sname", "Unknown Ship")
             ship.sx = int(ship_elem.get("sx", "0"))
             ship.sy = int(ship_elem.get("sy", "0"))
             
+            self.logger.info(f"  Ship ID: {ship.sid}, Name: {ship.sname}, Size: {ship.sx}x{ship.sy}")
+            
             # Load storage containers
+            self.logger.info(f"  Loading storage for ship {ship.sname}...")
             self.load_ship_storage(ship, ship_elem)
             
             self.ships.append(ship)
+            self.logger.info(f"  Ship {ship.sname} loaded with {len(ship.storage_containers)} storage containers")
+        
+        self.logger.info(f"Total ships loaded: {len(self.ships)}")
             
     def load_ship_storage(self, ship: Ship, ship_elem: ET.Element):
         """Load storage containers and items for a ship"""
-        # This would need to be implemented based on the actual XML structure
-        # For now, just a placeholder
-        pass
+        self.logger.debug(f"    Searching for storage containers in ship {ship.sname}")
+        
+        # Log the structure of the ship element
+        self.logger.debug(f"    Ship element has {len(list(ship_elem))} children")
+        for child in ship_elem:
+            self.logger.debug(f"      Child element: {child.tag} (attributes: {list(child.attrib.keys())})")
+        
+        # Look for storage-related elements (this is a placeholder - need actual XML structure)
+        # Common patterns: "storage", "containers", "items", "inventory"
+        storage_found = False
+        
+        # Try finding storage containers
+        for storage_elem in ship_elem.findall(".//storage"):
+            storage_found = True
+            self.logger.debug(f"    Found storage element with attributes: {storage_elem.attrib}")
+            container = StorageContainer()
+            container.container_id = int(storage_elem.get("id", "0"))
+            container.container_name = storage_elem.get("name", f"Container {container.container_id}")
+            
+            # Load items in this container
+            for item_elem in storage_elem.findall(".//item"):
+                item = StorageItem()
+                item.item_id = item_elem.get("id", "unknown")
+                item.item_name = self.id_collection.get_name(item.item_id)
+                item.quantity = int(item_elem.get("quantity", "0"))
+                container.items.append(item)
+                self.logger.debug(f"      Found item: {item.item_id} x{item.quantity}")
+            
+            ship.storage_containers.append(container)
+            self.logger.info(f"    Loaded container {container.container_name} with {len(container.items)} items")
+        
+        # Try alternative patterns
+        for container_elem in ship_elem.findall(".//container"):
+            storage_found = True
+            self.logger.debug(f"    Found container element with attributes: {container_elem.attrib}")
+            container = StorageContainer()
+            container.container_id = int(container_elem.get("id", "0"))
+            container.container_name = container_elem.get("name", f"Container {container.container_id}")
+            ship.storage_containers.append(container)
+        
+        if not storage_found:
+            self.logger.warning(f"    No storage containers found for ship {ship.sname}")
+            self.logger.debug(f"    Available sub-elements: {[child.tag for child in ship_elem.iter()]}")
         
     def load_characters(self):
         """Load characters from XML"""
         self.characters.clear()
         
         if self.xml_root is None:
+            self.logger.warning("load_characters: xml_root is None")
             return
+        
+        self.logger.info("Searching for character elements...")
+        char_elements = self.xml_root.findall(".//c")
+        self.logger.info(f"Found {len(char_elements)} character elements")
+        
+        for idx, char_elem in enumerate(char_elements):
+            self.logger.info(f"Processing character {idx + 1}/{len(char_elements)}")
+            self.logger.debug(f"  Character element attributes: {char_elem.attrib}")
             
-        for char_elem in self.xml_root.findall(".//c"):
             character = Character()
             character.character_entity_id = int(char_elem.get("entId", "0"))
             character.ship_sid = int(char_elem.get("shipSid", "0"))
             
+            self.logger.debug(f"  Entity ID: {character.character_entity_id}, Ship SID: {character.ship_sid}")
+            
             # Load character name
             pers_elem = char_elem.find("pers")
             if pers_elem is not None:
-                character.character_name = pers_elem.get("fn", "Unknown") + " " + pers_elem.get("ln", "")
+                first_name = pers_elem.get("fn", "Unknown")
+                last_name = pers_elem.get("ln", "")
+                character.character_name = f"{first_name} {last_name}".strip()
+                self.logger.info(f"  Name: {character.character_name}")
+                self.logger.debug(f"  pers element attributes: {pers_elem.attrib}")
                 
                 # Load attributes
                 attr_elem = pers_elem.find("attr")
                 if attr_elem is not None:
+                    self.logger.debug(f"  Found attr element")
+                    attr_count = 0
                     for a_elem in attr_elem.findall("a"):
                         prop = DataProp()
                         prop.id = int(a_elem.get("id", "0"))
                         prop.value = int(a_elem.get("points", "0"))
-                        # Would need to map ID to name
                         character.character_attributes.append(prop)
+                        attr_count += 1
+                        self.logger.debug(f"    Attribute {prop.id}: {prop.value} points")
+                    self.logger.info(f"  Loaded {attr_count} attributes")
+                else:
+                    self.logger.warning(f"  attr element not found for {character.character_name}")
                 
                 # Load skills
                 skills_elem = pers_elem.find("skills")
                 if skills_elem is not None:
+                    self.logger.debug(f"  Found skills element")
+                    skill_count = 0
                     for s_elem in skills_elem.findall("s"):
                         prop = DataProp()
                         prop.id = int(s_elem.get("id", "0"))
                         prop.value = int(s_elem.get("level", "0"))
                         prop.max_value = int(s_elem.get("mxn", "0"))
                         character.character_skills.append(prop)
+                        skill_count += 1
+                        self.logger.debug(f"    Skill {prop.id}: level {prop.value}/{prop.max_value}")
+                    self.logger.info(f"  Loaded {skill_count} skills")
+                else:
+                    self.logger.warning(f"  skills element not found for {character.character_name}")
+            else:
+                self.logger.warning(f"  pers element not found for character {character.character_entity_id}")
+                character.character_name = f"Unknown Character {character.character_entity_id}"
                         
             self.characters.append(character)
+            self.logger.info(f"  Character {character.character_name} loaded successfully")
+        
+        self.logger.info(f"Total characters loaded: {len(self.characters)}")
             
     def update_global_settings(self):
         """Update global settings in memory"""
@@ -533,20 +729,28 @@ class SpaceHavenEditor(QMainWindow):
             
     def on_ship_selected(self, index: int):
         """Handle ship selection change"""
+        self.logger.info(f"Ship selection changed to index {index}")
+        
         if index < 0:
+            self.logger.debug("Invalid index, returning")
             return
             
         ship = self.ship_combo.itemData(index)
         if ship:
+            self.logger.info(f"Selected ship: {ship.sname} (ID: {ship.sid})")
             self.ship_width.setValue(ship.sx)
             self.ship_height.setValue(ship.sy)
             self.ship_info.setText(f"Ship: {ship.sname}\nDimensions: {ship.sx}x{ship.sy}")
             
             # Update crew list for this ship
+            self.logger.info(f"Updating crew list for ship {ship.sid}")
             self.update_crew_list(ship.sid)
             
             # Update storage containers
+            self.logger.info(f"Updating storage containers for ship {ship.sname}")
             self.update_storage_containers(ship)
+        else:
+            self.logger.warning(f"No ship data for index {index}")
             
     def update_ship_size(self):
         """Update the selected ship's size"""
@@ -573,10 +777,20 @@ class SpaceHavenEditor(QMainWindow):
                 
     def update_crew_list(self, ship_sid: int):
         """Update the crew list for the selected ship"""
+        self.logger.info(f"Updating crew list for ship SID {ship_sid}")
         self.crew_list.clear()
+        
+        crew_count = 0
         for char in self.characters:
             if char.ship_sid == ship_sid:
                 self.crew_list.addItem(char.character_name, char)
+                crew_count += 1
+                self.logger.debug(f"  Added crew: {char.character_name}")
+        
+        self.logger.info(f"Added {crew_count} crew members to list")
+        
+        if crew_count == 0:
+            self.logger.warning(f"No crew found for ship SID {ship_sid}")
                 
     def on_crew_selected(self, index: int):
         """Handle crew member selection"""
@@ -617,9 +831,19 @@ class SpaceHavenEditor(QMainWindow):
         
     def update_storage_containers(self, ship: Ship):
         """Update storage container list for the selected ship"""
+        self.logger.info(f"Updating storage containers for ship {ship.sname}")
         self.container_combo.clear()
+        
+        container_count = 0
         for container in ship.storage_containers:
             self.container_combo.addItem(container.container_name, container)
+            container_count += 1
+            self.logger.debug(f"  Added container: {container.container_name} with {len(container.items)} items")
+        
+        self.logger.info(f"Added {container_count} storage containers to list")
+        
+        if container_count == 0:
+            self.logger.warning(f"No storage containers found for ship {ship.sname}")
             
     def on_container_selected(self, index: int):
         """Handle storage container selection"""
@@ -713,14 +937,26 @@ class SpaceHavenEditor(QMainWindow):
 
 def main():
     """Main entry point"""
-    app = QApplication(sys.argv)
-    app.setApplicationName("Space Haven Save Editor")
-    app.setOrganizationName("SpaceHavenEditor")
+    # Setup logging first
+    logger = setup_logging()
+    logger.info("Starting Space Haven Save Editor")
     
-    window = SpaceHavenEditor()
-    window.show()
-    
-    sys.exit(app.exec())
+    try:
+        app = QApplication(sys.argv)
+        app.setApplicationName("Space Haven Save Editor")
+        app.setOrganizationName("SpaceHavenEditor")
+        
+        logger.info("Creating main window")
+        window = SpaceHavenEditor()
+        window.show()
+        
+        logger.info("Application ready, entering event loop")
+        exit_code = app.exec()
+        logger.info(f"Application exiting with code {exit_code}")
+        sys.exit(exit_code)
+    except Exception as e:
+        logger.error(f"Fatal error: {str(e)}", exc_info=True)
+        raise
 
 
 if __name__ == "__main__":

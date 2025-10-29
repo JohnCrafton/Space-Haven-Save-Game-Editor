@@ -36,6 +36,12 @@ All the features of the original editor, now running on Linux/Steam Deck:
   - Automatically create timestamped backup folders when opening saves
   - Manual backup still strongly recommended
 
+- 🔍 **Verbose Logging**
+  - Detailed logs written to dated files for debugging
+  - Logs XML parsing, character/ship loading, and errors
+  - Helps diagnose issues when tabs appear empty
+  - See [LOGGING.md](LOGGING.md) for details
+
 - 🎮 **Steam Deck Optimized**
   - Touch-friendly interface
   - Runs natively on SteamOS
@@ -329,6 +335,13 @@ python3 --version
 - Make sure you clicked "Update Global Settings" before saving
 - Verify the save file was actually modified (check timestamp)
 - Make sure Space Haven isn't running when you save
+
+**Storage or Character tabs are empty:**
+- Check the log files in the `python/` directory (files named `space_haven_editor_*.log`)
+- Look for WARNING or ERROR entries that indicate parsing problems
+- The log will show exactly what elements were found/not found in your save file
+- See [LOGGING.md](LOGGING.md) for detailed information about debugging with logs
+- Share the log file when reporting issues for faster diagnosis
 
 **Steam Deck read-only filesystem issues:**
 This is why we use `uv`! It handles everything in user space without needing `sudo` or modifying system files.
