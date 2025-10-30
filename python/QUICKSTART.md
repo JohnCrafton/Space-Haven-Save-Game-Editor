@@ -40,30 +40,35 @@ The launcher script will automatically:
 
 Steam Deck save location:
 ```
-~/.steam/steam/steamapps/common/SpaceHaven/savegames/[YourSaveGameName]/save/game
+~/.steam/steam/steamapps/common/SpaceHaven/savegames/[YourSaveGameName]
 ```
 
 Alternative location:
 ```
-~/.local/share/Steam/steamapps/common/SpaceHaven/savegames/[YourSaveGameName]/save/game
+~/.local/share/Steam/steamapps/common/SpaceHaven/savegames/[YourSaveGameName]
 ```
 
 ## 🔧 Usage
 
 1. **File → Open Save File**
 2. Navigate to your save location
-3. Select the `game` file (no extension)
+3. Select the save folder you want to update
 4. Edit your settings
 5. Click "Update Global Settings" for global changes
 6. **File → Save** to write changes
-7. Launch Space Haven!
 
 ## 💡 Tips
 
+- It helps to have the game running in the background to avoid Steam overwriting your save from cloud data
 - Automatic backups are created by default
-- Always make manual backups too!
-- Touch controls work great on Steam Deck
+- Never hurts to make manual backups too!
 - Use Steam+X for virtual keyboard
+
+## May Not Work Right Now
+
+- Assigning skills (TODO:  "Max Learning/Max Value" button)
+- Some items in the storage lists don't appear correctly (yet)
+- Some storage elements (such as corpse lockers) register as "small/large storage"
 
 ## 🆘 Help
 
