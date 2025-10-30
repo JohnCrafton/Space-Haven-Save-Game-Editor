@@ -1,0 +1,32 @@
+Mac game location:
+/Users/%USERNAME%/Library/Application Support/Steam/steamapps/common/SpaceHaven/spacehaven.app/Contents
+/Users/%USERNAME%/Applications/Space Haven.app/Contents
+
+Mac metadata location:
+/Users/%USERNAME%/Library/Application Support/Spacehaven(/savegames)
+
+
+Skill Points/Trait (intelligence)
+
+1 - potential=39, starting=16
+2 - potential=44, starting=19
+3 - potential=49, starting=22
+4 - potential=54, starting=25
+5 - potential=59, starting=28
+
+
+startup save example
+
+Alpha:  B3/Z3/I3/P3 - Astronaut / Hero - first shirt, first pants - Male (edited)
+
+Bravo:  B2/Z2/I5/P3 - Doctor / Smart - last shirt, last pants - Male (edited)
+
+Charlie:  B1/Z2/I5/P4 - Lawyer / Lazy - first shirt, first pants - Female (random)
+
+Delta:  B4/Z1/I3/P4 - Airline pilot / Nyctophobia - last shirt, last pants - Female (random)
+
+
+STORAGE:
+
+large storage = 250 items max
+small storage = 50 items max

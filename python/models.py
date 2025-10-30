@@ -53,6 +53,7 @@ class StorageContainer:
         self.container_id = container_id
         self.container_name = container_name
         self.items: List[StorageItem] = []
+        self.capacity: int = 250  # Default to large storage capacity
 
 
 class Ship:
